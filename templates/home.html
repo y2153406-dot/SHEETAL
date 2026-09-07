@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}
+Guardian SHIELD | Emergency Response Platform
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="hero">
+
+    <div class="hero-content">
+
+        <div class="eyebrow">
+            SMART EMERGENCY RESPONSE
+        </div>
+
+        <h1>
+            One press can start
+            <span>the response.</span>
+        </h1>
+
+        <p class="hero-description">
+            Guardian SHIELD connects a physical emergency device
+            with intelligent response management, live location
+            and a trusted Safety Circle.
+        </p>
+
+        <div class="hero-actions">
+            <a href="/login/" class="btn btn-primary">
+                Get Started
+            </a>
+
+            <a href="#how-it-works" class="btn btn-secondary">
+                See How It Works
+            </a>
+        </div>
+
+    </div>
+
+
+    <!-- DEVICE VISUAL -->
+
+    <div class="device-area">
+
+        <div class="device-glow"></div>
+
+        <div class="shield-device">
+
+            <div class="device-top">
+                <span class="device-status"></span>
+                SHIELD
+            </div>
+
+            <div class="device-center">
+                <div class="sos-ring">
+                    SOS
+                </div>
+            </div>
+
+            <div class="device-bottom">
+                <span>GPS</span>
+                <span>GSM</span>
+                <span>BLE</span>
+            </div>
+
+        </div>
+
+        <div class="device-caption">
+            <strong>SHIELD Device</strong>
+            <span>Independent emergency trigger</span>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- TRUST BAR -->
+
+<section class="trust-bar">
+
+    <div>
+        <strong>Physical SOS</strong>
+        <span>Instant emergency trigger</span>
+    </div>
+
+    <div>
+        <strong>Live Location</strong>
+        <span>Know where help is needed</span>
+    </div>
+
+    <div>
+        <strong>Safety Circle</strong>
+        <span>Notify trusted responders</span>
+    </div>
+
+    <div>
+        <strong>Smart Escalation</strong>
+        <span>Follow-up when nobody responds</span>
+    </div>
+
+</section>
+
+
+<!-- HOW IT WORKS -->
+
+<section class="section" id="how-it-works">
+
+    <div class="section-heading">
+
+        <div class="eyebrow">
+            HOW IT WORKS
+        </div>
+
+        <h2>
+            From one press to coordinated response.
+        </h2>
+
+        <p>
+            Guardian SHIELD turns a physical SOS signal into
+            a structured emergency response.
+        </p>
+
+    </div>
+
+
+    <div class="flow">
+
+        <div class="flow-card">
+            <div class="flow-number">01</div>
+            <h3>SOS Triggered</h3>
+            <p>
+                The user presses the physical SOS button
+                on the SHIELD device.
+            </p>
+        </div>
+
+        <div class="flow-line"></div>
+
+        <div class="flow-card">
+            <div class="flow-number">02</div>
+            <h3>Location Captured</h3>
+            <p>
+                The device obtains the latest available
+                GPS coordinates.
+            </p>
+        </div>
+
+        <div class="flow-line"></div>
+
+        <div class="flow-card">
+            <div class="flow-number">03</div>
+            <h3>Emergency Created</h3>
+            <p>
+                Django receives the event and creates
+                an emergency incident.
+            </p>
+        </div>
+
+        <div class="flow-line"></div>
+
+        <div class="flow-card">
+            <div class="flow-number">04</div>
+            <h3>Response Begins</h3>
+            <p>
+                The Safety Circle is notified and responders
+                can acknowledge and act.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- FEATURES -->
+
+<section class="section features-section" id="features">
+
+    <div class="section-heading">
+
+        <div class="eyebrow">
+            THE PLATFORM
+        </div>
+
+        <h2>
+            Built around the emergency journey.
+        </h2>
+
+        <p>
+            Everything needed to manage an emergency
+            from trigger to resolution.
+        </p>
+
+    </div>
+
+
+    <div class="feature-grid">
+
+        <div class="feature-card">
+            <div class="feature-icon">01</div>
+            <h3>SHIELD Device</h3>
+            <p>
+                A dedicated physical emergency trigger
+                powered by ESP32, GPS and GSM.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">02</div>
+            <h3>Live Location</h3>
+            <p>
+                Track the latest available location
+                during an active emergency.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">03</div>
+            <h3>Safety Circle</h3>
+            <p>
+                Configure trusted people and responders
+                who can be contacted during emergencies.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">04</div>
+            <h3>Smart Escalation</h3>
+            <p>
+                If an alert remains unacknowledged,
+                the response flow can escalate to the next contact.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">05</div>
+            <h3>Responder Dashboard</h3>
+            <p>
+                Authorized responders can view incidents,
+                locations and response status.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">06</div>
+            <h3>Incident Timeline</h3>
+            <p>
+                Follow every important event from SOS
+                activation to resolution.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- PRODUCT STATEMENT -->
+
+<section class="statement-section">
+
+    <div class="statement-card">
+
+        <div class="eyebrow">
+            GUARDIAN SHIELD
+        </div>
+
+        <h2>
+            SHIELD asks for help.
+            <br>
+            Guardian SHIELD manages the response.
+        </h2>
+
+        <p>
+            A physical device for triggering an emergency,
+            combined with a web platform designed to coordinate
+            what happens next.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- FUTURE -->
+
+<section class="future-section">
+
+    <div>
+
+        <div class="eyebrow">
+            FUTURE ROADMAP
+        </div>
+
+        <h2>
+            Smarter safety, beyond the MVP.
+        </h2>
+
+        <p>
+            Future versions can explore AI-assisted automatic
+            danger detection, advanced sensors and deeper
+            emergency integrations.
+        </p>
+
+    </div>
+
+    <span class="coming-soon">
+        COMING SOON
+    </span>
+
+</section>
+
+{% endblock %}
