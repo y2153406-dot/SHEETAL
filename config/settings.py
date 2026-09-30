@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 from pathlib import Path
 import os
+from urllib.parse import urlparse, unquote
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -75,15 +76,34 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-        "OPTIONS": {
-            "timeout": 20,
-        },
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if DATABASE_URL:
+    db_url = urlparse(DATABASE_URL)
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": db_url.path.lstrip("/"),
+            "USER": unquote(db_url.username or ""),
+            "PASSWORD": unquote(db_url.password or ""),
+            "HOST": db_url.hostname,
+            "PORT": db_url.port or 5432,
+            "OPTIONS": {
+                "sslmode": "require",
+            },
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+            "OPTIONS": {
+                "timeout": 20,
+            },
+        }
+    }
 
 
 # Password validation
