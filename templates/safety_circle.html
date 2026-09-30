@@ -1,0 +1,678 @@
+{% extends "base.html" %}
+
+{% block title %}
+Safety Circle | Guardian SHIELD
+{% endblock %}
+
+{% block content %}
+
+<style>
+    /* =====================================================
+       GUARDIAN SHIELD — SAFETY CIRCLE
+       Isolated styles to avoid conflicts with dashboard CSS
+       ===================================================== */
+
+    .sc-page {
+        min-height: calc(100vh - 160px);
+        padding: 60px 24px 70px;
+        background: #f8fafc;
+    }
+
+    .sc-container {
+        width: min(1100px, 100%);
+        margin: 0 auto;
+    }
+
+    .sc-heading {
+        margin-bottom: 32px;
+    }
+
+    .sc-eyebrow {
+        display: block;
+        margin-bottom: 8px;
+        color: #d92d20;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+
+    .sc-heading h1 {
+        margin: 0;
+        color: #101828;
+        font-size: 38px;
+        line-height: 1.2;
+        font-weight: 750;
+    }
+
+    .sc-heading p {
+        margin: 12px 0 0;
+        color: #667085;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    .sc-error {
+        margin-bottom: 24px;
+        padding: 14px 16px;
+        border: 1px solid #fecdca;
+        border-radius: 12px;
+        background: #fef3f2;
+        color: #b42318;
+        font-size: 14px;
+    }
+
+    .sc-grid {
+        display: grid;
+        grid-template-columns: minmax(320px, 0.85fr) minmax(420px, 1.15fr);
+        gap: 24px;
+        align-items: start;
+    }
+
+    .sc-card {
+        min-width: 0;
+        padding: 28px;
+        border: 1px solid #eaecf0;
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+        box-sizing: border-box;
+    }
+
+    .sc-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .sc-card-header h2 {
+        margin: 6px 0 0;
+        color: #101828;
+        font-size: 22px;
+        line-height: 1.3;
+    }
+
+    .sc-form-group {
+        margin-bottom: 18px;
+    }
+
+    .sc-form-group label {
+        display: block;
+        margin-bottom: 7px;
+        color: #344054;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .sc-optional {
+        color: #98a2b3;
+        font-weight: 400;
+    }
+
+    .sc-input {
+        display: block;
+        width: 100%;
+        height: 46px;
+        padding: 0 14px;
+        box-sizing: border-box;
+        border: 1px solid #d0d5dd;
+        border-radius: 10px;
+        outline: none;
+        background: #ffffff;
+        color: #101828;
+        font-family: inherit;
+        font-size: 14px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .sc-input::placeholder {
+        color: #98a2b3;
+    }
+
+    .sc-input:focus {
+        border-color: #d92d20;
+        box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.08);
+    }
+
+    .sc-submit {
+        width: 100%;
+        height: 46px;
+        margin-top: 4px;
+        border: none;
+        border-radius: 10px;
+        background: #d92d20;
+        color: #ffffff;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .sc-submit:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+    }
+
+    .sc-count {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+        box-sizing: border-box;
+        border-radius: 50%;
+        background: #fef3f2;
+        color: #d92d20;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .sc-contacts {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .sc-contact {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 15px;
+        border: 1px solid #eaecf0;
+        border-radius: 13px;
+        background: #ffffff;
+    }
+
+    .sc-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        flex: 0 0 46px;
+        border-radius: 50%;
+        background: #fef3f2;
+        color: #d92d20;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .sc-contact-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .sc-contact-info h3 {
+        margin: 0 0 3px;
+        color: #101828;
+        font-size: 16px;
+    }
+
+    .sc-relationship {
+        display: block;
+        margin-bottom: 5px;
+        color: #98a2b3;
+        font-size: 12px;
+    }
+
+    .sc-contact-detail {
+        margin: 3px 0 0;
+        color: #667085;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+    }
+
+    .sc-contact-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .sc-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border-radius: 20px;
+        background: #ecfdf3;
+        color: #027a48;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .sc-remove {
+        padding: 3px;
+        border: none;
+        background: transparent;
+        color: #b42318;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .sc-remove:hover {
+        text-decoration: underline;
+    }
+
+    .sc-empty {
+        padding: 42px 20px;
+        text-align: center;
+    }
+
+    .sc-empty-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 52px;
+        height: 52px;
+        margin: 0 auto 15px;
+        border-radius: 50%;
+        background: #ecfdf3;
+        color: #027a48;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .sc-empty h3 {
+        margin: 0 0 7px;
+        color: #101828;
+        font-size: 17px;
+    }
+
+    .sc-empty p {
+        max-width: 420px;
+        margin: 0 auto;
+        color: #667085;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .sc-info {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        margin-top: 24px;
+        padding: 20px;
+        border: 1px solid #eaecf0;
+        border-radius: 14px;
+        background: #ffffff;
+    }
+
+    .sc-info-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        flex: 0 0 32px;
+        border-radius: 50%;
+        background: #101828;
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .sc-info h3 {
+        margin: 0 0 5px;
+        color: #101828;
+        font-size: 15px;
+    }
+
+    .sc-info p {
+        margin: 0;
+        color: #667085;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 850px) {
+        .sc-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .sc-page {
+            padding: 40px 15px 50px;
+        }
+
+        .sc-heading h1 {
+            font-size: 30px;
+        }
+
+        .sc-card {
+            padding: 20px;
+        }
+
+        .sc-contact {
+            align-items: flex-start;
+        }
+
+        .sc-contact-actions {
+            margin-left: auto;
+        }
+    }
+</style>
+
+
+<section class="sc-page">
+
+    <div class="sc-container">
+
+        <!-- PAGE HEADER -->
+
+        <div class="sc-heading">
+
+            <span class="sc-eyebrow">
+                EMERGENCY CONTACTS
+            </span>
+
+            <h1>
+                Your Safety Circle
+            </h1>
+
+            <p>
+                Add trusted people who should be contacted during an emergency.
+            </p>
+
+        </div>
+
+
+        {% if error %}
+
+        <div class="sc-error">
+            {{ error }}
+        </div>
+
+        {% endif %}
+
+
+
+        <!-- MAIN GRID -->
+
+        <div class="sc-grid">
+
+
+            <!-- ADD CONTACT -->
+
+            <div class="sc-card">
+
+                <div class="sc-card-header">
+
+                    <div>
+
+                        <span class="sc-eyebrow">
+                            ADD CONTACT
+                        </span>
+
+                        <h2>
+                            Add a trusted person
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <form
+                    method="POST"
+                    action="{% url 'add_safety_contact' %}"
+                >
+
+                    {% csrf_token %}
+
+
+                    <div class="sc-form-group">
+
+                        <label for="sc-name">
+                            Full Name
+                        </label>
+
+                        <input
+                            class="sc-input"
+                            type="text"
+                            id="sc-name"
+                            name="name"
+                            placeholder="Enter contact name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="sc-form-group">
+
+                        <label for="sc-phone">
+                            Phone Number
+                        </label>
+
+                        <input
+                            class="sc-input"
+                            type="tel"
+                            id="sc-phone"
+                            name="phone"
+                            placeholder="Enter phone number"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="sc-form-group">
+
+                        <label for="sc-email">
+                            Email
+                            <span class="sc-optional">
+                                (Optional)
+                            </span>
+                        </label>
+
+                        <input
+                            class="sc-input"
+                            type="email"
+                            id="sc-email"
+                            name="email"
+                            placeholder="Enter email address"
+                        >
+
+                    </div>
+
+
+                    <div class="sc-form-group">
+
+                        <label for="sc-relationship">
+                            Relationship
+                            <span class="sc-optional">
+                                (Optional)
+                            </span>
+                        </label>
+
+                        <input
+                            class="sc-input"
+                            type="text"
+                            id="sc-relationship"
+                            name="relationship"
+                            placeholder="e.g. Parent, Friend, Brother"
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="sc-submit"
+                    >
+                        ADD TO SAFETY CIRCLE
+                    </button>
+
+                </form>
+
+            </div>
+
+
+
+            <!-- CONTACT LIST -->
+
+            <div class="sc-card">
+
+                <div class="sc-card-header">
+
+                    <div>
+
+                        <span class="sc-eyebrow">
+                            YOUR CONTACTS
+                        </span>
+
+                        <h2>
+                            Trusted people
+                        </h2>
+
+                    </div>
+
+                    <div class="sc-count">
+                        {{ contacts|length }}
+                    </div>
+
+                </div>
+
+
+                {% if contacts %}
+
+                    <div class="sc-contacts">
+
+                        {% for contact in contacts %}
+
+                            <div class="sc-contact">
+
+                                <div class="sc-avatar">
+                                    {{ contact.name|first|upper }}
+                                </div>
+
+
+                                <div class="sc-contact-info">
+
+                                    <h3>
+                                        {{ contact.name }}
+                                    </h3>
+
+                                    {% if contact.relationship %}
+
+                                        <span class="sc-relationship">
+                                            {{ contact.relationship }}
+                                        </span>
+
+                                    {% endif %}
+
+                                    <p class="sc-contact-detail">
+                                        📞 {{ contact.phone }}
+                                    </p>
+
+                                    {% if contact.email %}
+
+                                        <p class="sc-contact-detail">
+                                            ✉ {{ contact.email }}
+                                        </p>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="sc-contact-actions">
+
+                                    {% if contact.is_active %}
+
+                                        <span class="sc-status">
+                                            Active
+                                        </span>
+
+                                    {% endif %}
+
+
+                                    <form
+                                        method="POST"
+                                        action="{% url 'delete_safety_contact' contact.id %}"
+                                        onsubmit="return confirm('Remove this contact from your Safety Circle?');"
+                                    >
+
+                                        {% csrf_token %}
+
+                                        <button
+                                            type="submit"
+                                            class="sc-remove"
+                                        >
+                                            Remove
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="sc-empty">
+
+                        <div class="sc-empty-icon">
+                            +
+                        </div>
+
+                        <h3>
+                            No safety contacts yet
+                        </h3>
+
+                        <p>
+                            Add someone you trust so they can be part of your
+                            emergency response network.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+
+        <!-- INFORMATION -->
+
+        <div class="sc-info">
+
+            <div class="sc-info-icon">
+                !
+            </div>
+
+            <div>
+
+                <h3>
+                    How Safety Circle works
+                </h3>
+
+                <p>
+                    When an emergency is triggered, your active safety contacts
+                    will be used for emergency communication and location sharing.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

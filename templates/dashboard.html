@@ -1,0 +1,606 @@
+{% extends "base.html" %}
+
+{% block title %}
+Dashboard | Guardian SHIELD
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+    <!-- SIDEBAR -->
+
+    <aside class="dashboard-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="brand-icon">
+                S
+            </div>
+
+            <div>
+                <strong>Guardian SHIELD</strong>
+                <span>Safety Control</span>
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <a href="{% url 'dashboard' %}" class="active">
+                <span>⌂</span>
+                Dashboard
+            </a>
+
+            <a href="#">
+                <span>◉</span>
+                My SHIELD
+            </a>
+
+            <a href="{% url 'safety_circle' %}">
+                <span>♧</span>
+                Safety Circle
+            </a>
+
+            <a href="#emergency-history">
+                <span>◷</span>
+                Emergency History
+            </a>
+
+            <a href="#">
+                <span>⚙</span>
+                Settings
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a href="{% url 'logout' %}" class="logout-link">
+                Logout
+            </a>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- MAIN DASHBOARD -->
+
+    <main class="dashboard-main">
+
+
+        <!-- TOP BAR -->
+
+        <div class="dashboard-topbar">
+
+            <div>
+
+                <span class="dashboard-eyebrow">
+                    PERSONAL SAFETY
+                </span>
+
+                <h1>
+                    Good to see you, {{ user.first_name|default:user.username }}.
+                </h1>
+
+                <p>
+                    Your Guardian SHIELD is ready.
+                </p>
+
+            </div>
+
+
+            <div class="profile-badge">
+                {{ user.first_name|default:user.username|first|upper }}
+            </div>
+
+        </div>
+
+
+
+        <!-- SAFETY STATUS -->
+
+        {% if active_incident %}
+
+        <section class="safety-status-card emergency-active-card">
+
+            <div class="status-icon">
+                !
+            </div>
+
+
+            <div class="status-content">
+
+                <span class="status-label">
+                    EMERGENCY STATUS
+                </span>
+
+                <h2>
+                    Emergency Active
+                </h2>
+
+                <p>
+                    Incident #{{ active_incident.id }}
+                    is currently
+                    {{ active_incident.get_status_display|lower }}.
+                </p>
+
+            </div>
+
+
+            <div class="status-indicator">
+
+                <span></span>
+
+                Response Active
+
+            </div>
+
+        </section>
+
+        {% else %}
+
+        <section class="safety-status-card">
+
+            <div class="status-icon">
+                ✓
+            </div>
+
+
+            <div class="status-content">
+
+                <span class="status-label">
+                    CURRENT STATUS
+                </span>
+
+                <h2>
+                    You're Safe
+                </h2>
+
+                <p>
+                    No active emergency has been detected.
+                </p>
+
+            </div>
+
+
+            <div class="status-indicator">
+
+                <span></span>
+
+                System Online
+
+            </div>
+
+        </section>
+
+        {% endif %}
+
+
+
+        <!-- DASHBOARD GRID -->
+
+        <div class="dashboard-grid">
+
+
+            <!-- DEVICE CARD -->
+
+            <section class="dashboard-card device-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="card-eyebrow">
+                            YOUR DEVICE
+                        </span>
+
+                        <h2>
+                            SHIELD Device
+                        </h2>
+
+                    </div>
+
+
+                    <span class="device-connected">
+                        Connected
+                    </span>
+
+                </div>
+
+
+                <div class="device-status-list">
+
+
+                    <div class="device-status-item">
+
+                        <span class="status-dot"></span>
+
+                        <div>
+
+                            <strong>
+                                Battery
+                            </strong>
+
+                            <small>
+                                78% remaining
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="device-status-item">
+
+                        <span class="status-dot"></span>
+
+                        <div>
+
+                            <strong>
+                                GPS
+                            </strong>
+
+                            <small>
+                                Ready
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="device-status-item">
+
+                        <span class="status-dot"></span>
+
+                        <div>
+
+                            <strong>
+                                GSM
+                            </strong>
+
+                            <small>
+                                Connected
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="device-last-sync">
+                    Last communication: Just now
+                </div>
+
+            </section>
+
+
+
+            <!-- SAFETY CIRCLE -->
+
+            <section class="dashboard-card circle-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="card-eyebrow">
+                            SAFETY CIRCLE
+                        </span>
+
+                        <h2>
+                            Your trusted contacts
+                        </h2>
+
+                    </div>
+
+
+                    <a href="{% url 'safety_circle' %}">
+                        Manage
+                    </a>
+
+                </div>
+
+
+                {% if safety_contacts %}
+
+                    <div class="circle-summary">
+
+                        <div class="contact-avatars">
+
+                            {% for contact in safety_contacts|slice:":3" %}
+
+                                <span>
+                                    {{ contact.name|first|upper }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div>
+
+                            <strong>
+                                {{ safety_contacts|length }}
+                                trusted contact{{ safety_contacts|length|pluralize }}
+                            </strong>
+
+                            <small>
+                                {{ active_contacts|length }}
+                                active contact{{ active_contacts|length|pluralize }}
+                                ready to receive emergency alerts
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="circle-summary">
+
+                        <div class="contact-avatars">
+
+                            <span>
+                                +
+                            </span>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong>
+                                No trusted contacts yet
+                            </strong>
+
+                            <small>
+                                Add people who should receive emergency alerts
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+
+
+            <!-- LIVE LOCATION -->
+
+            <section class="dashboard-card location-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="card-eyebrow">
+                            LIVE LOCATION
+                        </span>
+
+                        <h2>
+                            Current location
+                        </h2>
+
+                    </div>
+
+
+                    {% if active_incident and active_incident.latitude and active_incident.longitude %}
+
+                        <span class="location-ready">
+                            Location Captured
+                        </span>
+
+                    {% else %}
+
+                        <span class="location-ready">
+                            GPS Ready
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="map-placeholder">
+
+                    <div class="map-center">
+
+                        <div class="map-pin">
+                            ●
+                        </div>
+
+
+                        {% if active_incident and active_incident.latitude and active_incident.longitude %}
+
+                            <strong>
+                                Emergency location captured
+                            </strong>
+
+                            <span>
+
+                                Latitude:
+                                {{ active_incident.latitude }}
+
+                                <br>
+
+                                Longitude:
+                                {{ active_incident.longitude }}
+
+                            </span>
+
+                        {% else %}
+
+                            <strong>
+                                Location available
+                            </strong>
+
+                            <span>
+                                Live GPS coordinates will appear here
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- EMERGENCY ACTION -->
+
+            <section class="dashboard-card emergency-card">
+
+                <div class="emergency-content">
+
+                    <span class="card-eyebrow">
+                        EMERGENCY ACTION
+                    </span>
+
+                    <h2>
+                        Need immediate help?
+                    </h2>
+
+                    <p>
+                        Press the SOS button on your SHIELD device to start
+                        an emergency response.
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="emergency-test-button"
+                    id="testEmergencyButton"
+                >
+                    TEST EMERGENCY
+                </button>
+
+            </section>
+
+
+        </div>
+
+
+
+        <!-- EMERGENCY HISTORY -->
+
+        <section
+            class="dashboard-card history-card"
+            id="emergency-history"
+        >
+
+            <div class="card-header">
+
+                <div>
+
+                    <span class="card-eyebrow">
+                        RECENT ACTIVITY
+                    </span>
+
+                    <h2>
+                        Emergency History
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            {% if incidents %}
+
+                <div class="incident-list">
+
+                    {% for incident in incidents %}
+
+                        <div class="incident-item">
+
+
+                            <div class="incident-info">
+
+                                <strong>
+
+                                    <a
+                                        href="{% url 'emergency_response' incident.id %}"
+                                        style="color: inherit; text-decoration: none;"
+                                    >
+                                        Incident #{{ incident.id }}
+                                    </a>
+
+                                </strong>
+
+
+                                <span>
+                                    {{ incident.get_trigger_type_display }}
+                                </span>
+
+
+                                <small>
+                                    {{ incident.created_at|date:"d M Y, h:i A" }}
+                                </small>
+
+                            </div>
+
+
+
+                            <div class="incident-status status-{{ incident.status }}">
+
+                                {{ incident.get_status_display }}
+
+                            </div>
+
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+            {% else %}
+
+                <div class="empty-history">
+
+                    <div class="empty-history-icon">
+                        ✓
+                    </div>
+
+
+                    <h3>
+                        No emergency incidents
+                    </h3>
+
+
+                    <p>
+                        Your recent emergency activity will appear here.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+
+        </section>
+
+
+    </main>
+
+</section>
+
+{% endblock %}

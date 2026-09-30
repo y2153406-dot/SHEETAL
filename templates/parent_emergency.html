@@ -1,0 +1,625 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Live Location | Guardian SHIELD{% endblock %}
+
+{% block content %}
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<style>
+    .parent-page {
+        min-height: calc(100vh - 80px);
+        padding: 30px 20px;
+        background: #f7f8fc;
+    }
+
+    .parent-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .emergency-header {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 28px;
+        margin-bottom: 20px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .emergency-header h1 {
+        margin: 0 0 10px;
+        font-size: 30px;
+        color: #111827;
+    }
+
+    .emergency-header p {
+        margin: 5px 0;
+        color: #6b7280;
+    }
+
+    .live-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 15px;
+        padding: 9px 15px;
+        border-radius: 999px;
+        background: #ecfdf5;
+        color: #166534;
+        font-weight: 700;
+    }
+
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #16a34a;
+        box-shadow: 0 0 0 5px rgba(22, 163, 74, 0.12);
+    }
+
+    .map-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .map-card h2 {
+        margin: 0 0 15px;
+        color: #111827;
+        font-size: 21px;
+    }
+
+    #parentLiveMap {
+        width: 100%;
+        height: 520px;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .location-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 25px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .location-card h2 {
+        margin: 0 0 20px;
+        font-size: 20px;
+        color: #111827;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+    }
+
+    .detail-box {
+        background: #f3f4f6;
+        border-radius: 14px;
+        padding: 16px;
+    }
+
+    .detail-label {
+        display: block;
+        color: #6b7280;
+        font-size: 13px;
+        margin-bottom: 7px;
+    }
+
+    .detail-value {
+        color: #111827;
+        font-weight: 700;
+        word-break: break-word;
+    }
+
+    .map-button {
+        display: block;
+        margin-top: 20px;
+        padding: 14px;
+        border-radius: 12px;
+        background: #111827;
+        color: white;
+        text-decoration: none;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    .error-box {
+        display: none;
+        margin-top: 15px;
+        padding: 14px;
+        border-radius: 12px;
+        background: #fee2e2;
+        color: #b91c1c;
+        font-weight: 600;
+    }
+
+    @media (max-width: 800px) {
+        .details-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        #parentLiveMap {
+            height: 400px;
+        }
+    }
+
+    @media (max-width: 500px) {
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .parent-page {
+            padding: 20px 12px;
+        }
+
+        .emergency-header h1 {
+            font-size: 25px;
+        }
+    }
+</style>
+
+
+<div class="parent-page">
+
+    <div class="parent-container">
+
+        {% if error %}
+
+            <div class="emergency-header">
+
+                <h1>🔒 Emergency Link Error</h1>
+
+                <p>{{ error }}</p>
+
+            </div>
+
+        {% else %}
+
+            <!-- EMERGENCY HEADER -->
+
+            <div class="emergency-header">
+
+                <h1>🚨 Emergency Live Location</h1>
+
+                <p>
+                    <strong>{{ user.first_name|default:user.username }}</strong>
+                    has triggered a Guardian SHIELD emergency.
+                </p>
+
+                <p>
+                    Incident #{{ incident.id }}
+                </p>
+
+                <div class="live-status">
+
+                    <span class="status-dot"></span>
+
+                    <span id="liveStatus">
+                        CONNECTING TO LIVE LOCATION...
+                    </span>
+
+                </div>
+
+                <div
+                    id="errorBox"
+                    class="error-box"
+                ></div>
+
+            </div>
+
+
+            <!-- LIVE MAP -->
+
+            <div class="map-card">
+
+                <h2>🗺️ Live Location</h2>
+
+                <div id="parentLiveMap"></div>
+
+            </div>
+
+
+            <!-- LOCATION DETAILS -->
+
+            <div class="location-card">
+
+                <h2>📍 Current Location</h2>
+
+                <div class="details-grid">
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Latitude
+                        </span>
+
+                        <span
+                            id="parentLatitude"
+                            class="detail-value"
+                        >
+                            Waiting...
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Longitude
+                        </span>
+
+                        <span
+                            id="parentLongitude"
+                            class="detail-value"
+                        >
+                            Waiting...
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            GPS Accuracy
+                        </span>
+
+                        <span
+                            id="parentAccuracy"
+                            class="detail-value"
+                        >
+                            Waiting...
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Last Update
+                        </span>
+
+                        <span
+                            id="parentUpdated"
+                            class="detail-value"
+                        >
+                            Waiting...
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    id="parentMapButton"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="map-button"
+                    style="display: none;"
+                >
+                    🗺️ OPEN LOCATION IN GOOGLE MAPS
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+{% if not error %}
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+    /*
+     * -------------------------------------------------------
+     * INCIDENT + SECURE TOKEN
+     * -------------------------------------------------------
+     */
+
+    const incidentId = "{{ incident.id }}";
+
+    const token = new URLSearchParams(
+        window.location.search
+    ).get("token");
+
+
+    /*
+     * -------------------------------------------------------
+     * ELEMENTS
+     * -------------------------------------------------------
+     */
+
+    const latitudeElement =
+        document.getElementById("parentLatitude");
+
+    const longitudeElement =
+        document.getElementById("parentLongitude");
+
+    const accuracyElement =
+        document.getElementById("parentAccuracy");
+
+    const updatedElement =
+        document.getElementById("parentUpdated");
+
+    const statusElement =
+        document.getElementById("liveStatus");
+
+    const errorElement =
+        document.getElementById("errorBox");
+
+    const mapButtonElement =
+        document.getElementById("parentMapButton");
+
+
+    /*
+     * -------------------------------------------------------
+     * INITIALIZE MAP
+     * -------------------------------------------------------
+     */
+
+    const parentMap = L.map(
+        "parentLiveMap"
+    ).setView(
+        [20.5937, 78.9629],
+        5
+    );
+
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            maxZoom: 19,
+            attribution:
+                "&copy; OpenStreetMap contributors"
+        }
+    ).addTo(parentMap);
+
+
+    let parentMarker = null;
+
+
+    /*
+     * -------------------------------------------------------
+     * UPDATE MAP
+     * -------------------------------------------------------
+     */
+
+    function updateParentMap(
+        latitude,
+        longitude
+    ) {
+
+        const position = [
+            latitude,
+            longitude
+        ];
+
+
+        if (parentMarker === null) {
+
+            parentMarker = L.marker(
+                position
+            ).addTo(parentMap);
+
+            parentMarker.bindPopup(
+                "<strong>Guardian SHIELD</strong><br>" +
+                "Live User Location"
+            );
+
+            parentMarker.openPopup();
+
+            parentMap.setView(
+                position,
+                17
+            );
+
+        } else {
+
+            parentMarker.setLatLng(
+                position
+            );
+
+            parentMap.panTo(
+                position
+            );
+        }
+    }
+
+
+    /*
+     * -------------------------------------------------------
+     * FETCH LIVE LOCATION
+     * -------------------------------------------------------
+     */
+
+    async function fetchLiveLocation() {
+
+        if (!token) {
+
+            statusElement.textContent =
+                "INVALID ACCESS LINK";
+
+            showError(
+                "Secure emergency token is missing."
+            );
+
+            return;
+        }
+
+
+        try {
+
+            const response = await fetch(
+                "/api/live-location/" +
+                incidentId +
+                "/?token=" +
+                encodeURIComponent(token),
+                {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }
+            );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    "Unable to fetch live location."
+                );
+            }
+
+
+            const latitude =
+                Number(data.latitude);
+
+            const longitude =
+                Number(data.longitude);
+
+
+            /*
+             * Update details
+             */
+
+            latitudeElement.textContent =
+                latitude.toFixed(7);
+
+            longitudeElement.textContent =
+                longitude.toFixed(7);
+
+            accuracyElement.textContent =
+                data.accuracy !== null
+                    ? Number(data.accuracy).toFixed(1) + " m"
+                    : "Unknown";
+
+            updatedElement.textContent =
+                new Date(
+                    data.updated_at
+                ).toLocaleTimeString();
+
+
+            /*
+             * Update status
+             */
+
+            if (data.is_tracking) {
+
+                statusElement.textContent =
+                    "LIVE LOCATION ACTIVE";
+
+            } else {
+
+                statusElement.textContent =
+                    "TRACKING STOPPED";
+            }
+
+
+            /*
+             * Update map
+             */
+
+            updateParentMap(
+                latitude,
+                longitude
+            );
+
+
+            /*
+             * Google Maps
+             */
+
+            mapButtonElement.href =
+                "https://www.google.com/maps?q=" +
+                latitude +
+                "," +
+                longitude;
+
+            mapButtonElement.style.display =
+                "block";
+
+
+            errorElement.style.display =
+                "none";
+
+        } catch (error) {
+
+            console.error(
+                "Parent live location error:",
+                error
+            );
+
+            statusElement.textContent =
+                "LOCATION UPDATE FAILED";
+
+            showError(
+                error.message
+            );
+        }
+    }
+
+
+    /*
+     * -------------------------------------------------------
+     * ERROR
+     * -------------------------------------------------------
+     */
+
+    function showError(message) {
+
+        errorElement.textContent =
+            message;
+
+        errorElement.style.display =
+            "block";
+    }
+
+
+    /*
+     * -------------------------------------------------------
+     * START LIVE TRACKING
+     * -------------------------------------------------------
+     */
+
+    fetchLiveLocation();
+
+
+    /*
+     * Fetch latest location every 3 seconds
+     */
+
+    setInterval(
+        fetchLiveLocation,
+        3000
+    );
+
+</script>
+
+{% endif %}
+
+{% endblock %}

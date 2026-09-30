@@ -1,0 +1,786 @@
+{% extends "base.html" %}
+
+{% block title %}Live Location Tracking | Guardian SHIELD{% endblock %}
+
+{% block content %}
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<style>
+    .live-page {
+        min-height: calc(100vh - 80px);
+        padding: 35px 20px;
+        background: #f7f8fc;
+    }
+
+    .live-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .live-header {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 28px;
+        margin-bottom: 20px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .live-header h1 {
+        margin: 0 0 8px;
+        color: #111827;
+        font-size: 30px;
+    }
+
+    .live-header p {
+        margin: 0;
+        color: #6b7280;
+    }
+
+    .tracking-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 18px;
+        padding: 9px 15px;
+        border-radius: 999px;
+        background: #f3f4f6;
+        color: #374151;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #9ca3af;
+    }
+
+    .status-dot.active {
+        background: #16a34a;
+        box-shadow: 0 0 0 5px rgba(22, 163, 74, 0.12);
+    }
+
+    .map-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .map-card h2 {
+        margin: 0 0 15px;
+        color: #111827;
+        font-size: 20px;
+    }
+
+    #liveMap {
+        width: 100%;
+        height: 500px;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .location-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .location-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 25px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .location-card h2 {
+        margin: 0 0 20px;
+        color: #111827;
+        font-size: 20px;
+    }
+
+    .coordinate-box {
+        background: #f3f4f6;
+        border-radius: 14px;
+        padding: 18px;
+    }
+
+    .coordinate-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 10px 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .coordinate-row:last-child {
+        border-bottom: none;
+    }
+
+    .coordinate-label {
+        color: #6b7280;
+    }
+
+    .coordinate-value {
+        font-family: monospace;
+        font-weight: 700;
+        color: #111827;
+        text-align: right;
+    }
+
+    .map-button {
+        display: block;
+        margin-top: 18px;
+        padding: 14px 18px;
+        border-radius: 12px;
+        background: #111827;
+        color: #ffffff;
+        text-decoration: none;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    .map-button:hover {
+        opacity: 0.9;
+    }
+
+    .info-box {
+        padding: 16px;
+        border-radius: 14px;
+        background: #f9fafb;
+        color: #4b5563;
+        line-height: 1.6;
+    }
+
+    .error-message {
+        margin-top: 15px;
+        padding: 12px;
+        border-radius: 10px;
+        background: #fee2e2;
+        color: #b91c1c;
+        display: none;
+    }
+
+    @media (max-width: 700px) {
+        .location-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .live-page {
+            padding: 20px 14px;
+        }
+
+        .live-header h1 {
+            font-size: 25px;
+        }
+
+        #liveMap {
+            height: 400px;
+        }
+    }
+</style>
+
+
+<div class="live-page">
+
+    <div class="live-container">
+
+        <div class="live-header">
+
+            <h1>📍 Live Location Tracking</h1>
+
+            <p>
+                Guardian SHIELD is continuously updating the
+                current GPS location.
+            </p>
+
+            <div class="tracking-status">
+
+                <span
+                    id="statusDot"
+                    class="status-dot"
+                ></span>
+
+                <span id="trackingStatus">
+                    STARTING GPS...
+                </span>
+
+            </div>
+
+            <div
+                id="locationError"
+                class="error-message"
+            ></div>
+
+        </div>
+
+
+        <!-- LIVE MAP -->
+
+        <div class="map-card">
+
+            <h2>🗺️ Live Location Map</h2>
+
+            <div id="liveMap"></div>
+
+        </div>
+
+
+        <div class="location-grid">
+
+            <!-- CURRENT LOCATION -->
+
+            <div class="location-card">
+
+                <h2>📡 Current Location</h2>
+
+                <div class="coordinate-box">
+
+                    <div class="coordinate-row">
+
+                        <span class="coordinate-label">
+                            Latitude
+                        </span>
+
+                        <span
+                            id="latitude"
+                            class="coordinate-value"
+                        >
+                            Waiting...
+                        </span>
+
+                    </div>
+
+                    <div class="coordinate-row">
+
+                        <span class="coordinate-label">
+                            Longitude
+                        </span>
+
+                        <span
+                            id="longitude"
+                            class="coordinate-value"
+                        >
+                            Waiting...
+                        </span>
+
+                    </div>
+
+                    <div class="coordinate-row">
+
+                        <span class="coordinate-label">
+                            Accuracy
+                        </span>
+
+                        <span
+                            id="accuracy"
+                            class="coordinate-value"
+                        >
+                            Waiting...
+                        </span>
+
+                    </div>
+
+                    <div class="coordinate-row">
+
+                        <span class="coordinate-label">
+                            Last Update
+                        </span>
+
+                        <span
+                            id="lastUpdate"
+                            class="coordinate-value"
+                        >
+                            Waiting...
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <a
+                    id="mapButton"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="map-button"
+                    style="display: none;"
+                >
+                    🗺️ OPEN CURRENT LOCATION
+                </a>
+
+            </div>
+
+
+            <!-- TRACKING INFORMATION -->
+
+            <div class="location-card">
+
+                <h2>🛰️ Tracking Information</h2>
+
+                <div class="info-box">
+
+                    <strong>How it works</strong>
+
+                    <p>
+                        Your phone obtains GPS coordinates and
+                        sends the latest location to the Guardian
+                        SHIELD server.
+                    </p>
+
+                    <p>
+                        The map marker automatically moves whenever
+                        a new GPS position is received.
+                    </p>
+
+                    <p>
+                        Backend updates are limited to one request
+                        every five seconds to keep the tracking
+                        system stable.
+                    </p>
+
+                    <p>
+                        This prototype currently uses browser GPS.
+                        Hardware and background mobile tracking can
+                        be connected later.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+    /*
+     * ---------------------------------------------------------
+     * ELEMENTS
+     * ---------------------------------------------------------
+     */
+
+    const latitudeElement =
+        document.getElementById("latitude");
+
+    const longitudeElement =
+        document.getElementById("longitude");
+
+    const accuracyElement =
+        document.getElementById("accuracy");
+
+    const lastUpdateElement =
+        document.getElementById("lastUpdate");
+
+    const trackingStatusElement =
+        document.getElementById("trackingStatus");
+
+    const statusDotElement =
+        document.getElementById("statusDot");
+
+    const mapButtonElement =
+        document.getElementById("mapButton");
+
+    const locationErrorElement =
+        document.getElementById("locationError");
+
+
+    /*
+     * ---------------------------------------------------------
+     * MAP
+     * ---------------------------------------------------------
+     */
+
+    const defaultLocation = [
+        20.5937,
+        78.9629
+    ];
+
+    const liveMap = L.map(
+        "liveMap"
+    ).setView(
+        defaultLocation,
+        5
+    );
+
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            maxZoom: 19,
+            attribution:
+                "&copy; OpenStreetMap contributors"
+        }
+    ).addTo(liveMap);
+
+
+    let liveMarker = null;
+
+
+    /*
+     * ---------------------------------------------------------
+     * MAP MARKER
+     * ---------------------------------------------------------
+     */
+
+    function updateMap(
+        latitude,
+        longitude
+    ) {
+
+        const newPosition = [
+            latitude,
+            longitude
+        ];
+
+
+        if (liveMarker === null) {
+
+            liveMarker = L.marker(
+                newPosition
+            ).addTo(liveMap);
+
+            liveMarker.bindPopup(
+                "<strong>Guardian SHIELD</strong><br>" +
+                "Current Location"
+            );
+
+            liveMarker.openPopup();
+
+            liveMap.setView(
+                newPosition,
+                17
+            );
+
+        } else {
+
+            liveMarker.setLatLng(
+                newPosition
+            );
+
+            liveMap.panTo(
+                newPosition
+            );
+        }
+    }
+
+
+    /*
+     * ---------------------------------------------------------
+     * DATABASE UPDATE CONTROL
+     * ---------------------------------------------------------
+     */
+
+    let lastServerUpdate = 0;
+
+    let serverUpdateInProgress = false;
+
+    const SERVER_UPDATE_INTERVAL = 5000;
+
+
+    /*
+     * ---------------------------------------------------------
+     * SEND LOCATION TO SERVER
+     * ---------------------------------------------------------
+     */
+
+    async function updateLocationOnServer(
+        position
+    ) {
+
+        const latitude =
+            position.coords.latitude;
+
+        const longitude =
+            position.coords.longitude;
+
+        const accuracy =
+            position.coords.accuracy;
+
+
+        /*
+         * UI and map update immediately.
+         */
+
+        latitudeElement.textContent =
+            Number(latitude).toFixed(7);
+
+        longitudeElement.textContent =
+            Number(longitude).toFixed(7);
+
+        accuracyElement.textContent =
+            accuracy
+                ? Number(accuracy).toFixed(1) + " m"
+                : "Unknown";
+
+        lastUpdateElement.textContent =
+            new Date().toLocaleTimeString();
+
+        updateMap(
+            latitude,
+            longitude
+        );
+
+        mapButtonElement.href =
+            "https://www.google.com/maps?q=" +
+            latitude +
+            "," +
+            longitude;
+
+        mapButtonElement.style.display =
+            "block";
+
+
+        /*
+         * Prevent frequent database writes.
+         */
+
+        const now = Date.now();
+
+        if (
+            now - lastServerUpdate <
+            SERVER_UPDATE_INTERVAL
+        ) {
+            return;
+        }
+
+
+        /*
+         * Prevent overlapping POST requests.
+         */
+
+        if (serverUpdateInProgress) {
+            return;
+        }
+
+
+        lastServerUpdate = now;
+
+        serverUpdateInProgress = true;
+
+
+        try {
+
+            const response = await fetch(
+                "/api/live-location/",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "X-CSRFToken":
+                            getCookie("csrftoken"),
+                    },
+
+                    body: JSON.stringify({
+                        latitude: latitude,
+                        longitude: longitude,
+                        accuracy: accuracy,
+                    }),
+                }
+            );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    "Server location update failed."
+                );
+            }
+
+
+            if (
+                data.status === "success"
+            ) {
+
+                trackingStatusElement.textContent =
+                    "LIVE TRACKING ACTIVE";
+
+                statusDotElement.classList.add(
+                    "active"
+                );
+
+                locationErrorElement.style.display =
+                    "none";
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "Live location update failed:",
+                error
+            );
+
+            trackingStatusElement.textContent =
+                "SERVER UPDATE FAILED";
+
+            statusDotElement.classList.remove(
+                "active"
+            );
+
+            locationErrorElement.textContent =
+                "Location received, but server update failed. Retrying...";
+
+            locationErrorElement.style.display =
+                "block";
+
+        } finally {
+
+            serverUpdateInProgress = false;
+        }
+    }
+
+
+    /*
+     * ---------------------------------------------------------
+     * GPS ERROR
+     * ---------------------------------------------------------
+     */
+
+    function handleLocationError(
+        error
+    ) {
+
+        let message =
+            "Unable to get your location.";
+
+
+        if (error.code === 1) {
+
+            message =
+                "Location permission denied. " +
+                "Please allow GPS access.";
+
+        } else if (error.code === 2) {
+
+            message =
+                "GPS location is currently unavailable.";
+
+        } else if (error.code === 3) {
+
+            message =
+                "GPS request timed out. Retrying...";
+        }
+
+
+        trackingStatusElement.textContent =
+            "GPS UNAVAILABLE";
+
+        statusDotElement.classList.remove(
+            "active"
+        );
+
+        locationErrorElement.textContent =
+            message;
+
+        locationErrorElement.style.display =
+            "block";
+    }
+
+
+    /*
+     * ---------------------------------------------------------
+     * START LIVE GPS
+     * ---------------------------------------------------------
+     */
+
+    function startLiveTracking() {
+
+        if (
+            !navigator.geolocation
+        ) {
+
+            handleLocationError({
+                code: 2
+            });
+
+            return;
+        }
+
+
+        navigator.geolocation.watchPosition(
+            updateLocationOnServer,
+            handleLocationError,
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0,
+            }
+        );
+    }
+
+
+    /*
+     * ---------------------------------------------------------
+     * COOKIE
+     * ---------------------------------------------------------
+     */
+
+    function getCookie(
+        name
+    ) {
+
+        const cookies =
+            document.cookie.split(";");
+
+
+        for (
+            let cookie of cookies
+        ) {
+
+            cookie = cookie.trim();
+
+
+            if (
+                cookie.startsWith(
+                    name + "="
+                )
+            ) {
+
+                return decodeURIComponent(
+                    cookie.substring(
+                        name.length + 1
+                    )
+                );
+            }
+        }
+
+
+        return null;
+    }
+
+
+    /*
+     * ---------------------------------------------------------
+     * START
+     * ---------------------------------------------------------
+     */
+
+    startLiveTracking();
+
+</script>
+
+{% endblock %}

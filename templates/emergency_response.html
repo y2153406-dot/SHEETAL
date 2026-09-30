@@ -1,0 +1,771 @@
+{% extends "base.html" %}
+
+{% block title %}
+Emergency Response | Guardian SHIELD
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .er-page {
+        min-height: calc(100vh - 160px);
+        padding: 55px 24px 70px;
+        background: #f8fafc;
+    }
+
+    .er-container {
+        width: min(1050px, 100%);
+        margin: 0 auto;
+    }
+
+    .er-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .er-eyebrow {
+        display: block;
+        margin-bottom: 8px;
+        color: #d92d20;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+    }
+
+    .er-header h1 {
+        margin: 0;
+        color: #101828;
+        font-size: 36px;
+        line-height: 1.2;
+    }
+
+    .er-header p {
+        margin: 10px 0 0;
+        color: #667085;
+        font-size: 15px;
+    }
+
+    .er-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 14px;
+        border-radius: 30px;
+        background: #fef3f2;
+        color: #b42318;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .er-status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #d92d20;
+    }
+
+    .er-grid {
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        gap: 22px;
+    }
+
+    .er-card {
+        padding: 26px;
+        border: 1px solid #eaecf0;
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+    }
+
+    .er-card-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 22px;
+    }
+
+    .er-card-title h2 {
+        margin: 0;
+        color: #101828;
+        font-size: 21px;
+    }
+
+    .er-count {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        height: 34px;
+        padding: 0 9px;
+        border-radius: 50%;
+        background: #ecfdf3;
+        color: #027a48;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .er-alert-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .er-alert {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 15px;
+        border: 1px solid #eaecf0;
+        border-radius: 13px;
+    }
+
+    .er-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        border-radius: 50%;
+        background: #f2f4f7;
+        color: #344054;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .er-contact {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .er-contact strong {
+        display: block;
+        margin-bottom: 3px;
+        color: #101828;
+        font-size: 15px;
+    }
+
+    .er-contact span {
+        display: block;
+        color: #667085;
+        font-size: 12px;
+    }
+
+    .er-alert-status {
+        padding: 5px 9px;
+        border-radius: 20px;
+        background: #fffaeb;
+        color: #b54708;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .er-alert-status.sent {
+        background: #ecfdf3;
+        color: #027a48;
+    }
+
+    .er-alert-status.failed {
+        background: #fef3f2;
+        color: #b42318;
+    }
+
+    .er-incident-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .er-detail {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 14px 0;
+        border-bottom: 1px solid #eaecf0;
+    }
+
+    .er-detail:first-child {
+        padding-top: 0;
+    }
+
+    .er-detail:last-child {
+        border-bottom: 0;
+    }
+
+    .er-detail-label {
+        color: #667085;
+        font-size: 13px;
+    }
+
+    .er-detail-value {
+        color: #101828;
+        font-size: 13px;
+        font-weight: 600;
+        text-align: right;
+    }
+
+    /* EMERGENCY ACTIONS */
+
+    .er-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid #eaecf0;
+    }
+
+    .er-actions form {
+        margin: 0;
+    }
+
+    .er-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+            opacity 0.2s ease,
+            transform 0.2s ease;
+    }
+
+    .er-btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    .er-btn-primary {
+        background: #101828;
+        color: #ffffff;
+    }
+
+    .er-btn-success {
+        background: #15803d;
+        color: #ffffff;
+    }
+
+    .er-resolved-message {
+        width: 100%;
+        padding: 15px 18px;
+        border-radius: 10px;
+        background: #ecfdf5;
+        color: #166534;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .er-location-card {
+        grid-column: 1 / -1;
+    }
+
+    .er-location {
+        padding: 25px;
+        border-radius: 14px;
+        background: #f8fafc;
+        text-align: center;
+    }
+
+    .er-location-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 12px;
+        border-radius: 50%;
+        background: #fef3f2;
+        color: #d92d20;
+        font-size: 20px;
+    }
+
+    .er-location h3 {
+        margin: 0 0 8px;
+        color: #101828;
+        font-size: 16px;
+    }
+
+    .er-coordinates {
+        margin: 0 0 17px;
+        color: #667085;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .er-map-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px;
+        border-radius: 9px;
+        background: #101828;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .er-map-link:hover {
+        opacity: 0.9;
+    }
+
+    .er-no-location {
+        color: #667085;
+        font-size: 14px;
+    }
+
+    .er-message {
+        margin-top: 22px;
+        padding: 18px;
+        border: 1px solid #eaecf0;
+        border-radius: 13px;
+        background: #ffffff;
+    }
+
+    .er-message-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #667085;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .er-message p {
+        margin: 0;
+        color: #344054;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .er-back {
+        display: inline-block;
+        margin-top: 25px;
+        color: #344054;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .er-back:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 750px) {
+        .er-header {
+            flex-direction: column;
+        }
+
+        .er-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .er-location-card {
+            grid-column: auto;
+        }
+    }
+
+    @media (max-width: 500px) {
+        .er-page {
+            padding: 40px 15px 50px;
+        }
+
+        .er-card {
+            padding: 20px;
+        }
+
+        .er-header h1 {
+            font-size: 30px;
+        }
+
+        .er-alert {
+            align-items: flex-start;
+        }
+
+        .er-alert-status {
+            margin-left: auto;
+        }
+
+        .er-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<section class="er-page">
+
+    <div class="er-container">
+
+        <!-- HEADER -->
+
+        <div class="er-header">
+
+            <div>
+
+                <span class="er-eyebrow">
+                    EMERGENCY RESPONSE
+                </span>
+
+                <h1>
+                    Incident #{{ incident.id }}
+                </h1>
+
+                <p>
+                    Emergency response details and Safety Circle alerts.
+                </p>
+
+            </div>
+
+            <div class="er-status">
+
+                <span class="er-status-dot"></span>
+
+                {{ incident.get_status_display }}
+
+            </div>
+
+        </div>
+
+
+        <!-- MAIN CONTENT -->
+
+        <div class="er-grid">
+
+            <!-- SAFETY CIRCLE ALERTS -->
+
+            <section class="er-card">
+
+                <div class="er-card-title">
+
+                    <h2>
+                        Safety Circle Alerts
+                    </h2>
+
+                    <div class="er-count">
+                        {{ alerts|length }}
+                    </div>
+
+                </div>
+
+
+                {% if alerts %}
+
+                    <div class="er-alert-list">
+
+                        {% for alert in alerts %}
+
+                            <div class="er-alert">
+
+                                <div class="er-avatar">
+                                    {{ alert.contact.name|first|upper }}
+                                </div>
+
+                                <div class="er-contact">
+
+                                    <strong>
+                                        {{ alert.contact.name }}
+                                    </strong>
+
+                                    <span>
+                                        {{ alert.contact.phone }}
+
+                                        {% if alert.contact.relationship %}
+                                            · {{ alert.contact.relationship }}
+                                        {% endif %}
+                                    </span>
+
+                                </div>
+
+                                <span
+                                    class="er-alert-status {{ alert.status }}"
+                                >
+                                    {{ alert.get_status_display }}
+                                </span>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <p class="er-no-location">
+                        No emergency alerts were generated for this incident.
+                    </p>
+
+                {% endif %}
+
+            </section>
+
+
+            <!-- INCIDENT DETAILS -->
+
+            <section class="er-card">
+
+                <div class="er-card-title">
+
+                    <h2>
+                        Incident Details
+                    </h2>
+
+                </div>
+
+
+                <div class="er-incident-details">
+
+                    <div class="er-detail">
+
+                        <span class="er-detail-label">
+                            Incident
+                        </span>
+
+                        <span class="er-detail-value">
+                            #{{ incident.id }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="er-detail">
+
+                        <span class="er-detail-label">
+                            Trigger
+                        </span>
+
+                        <span class="er-detail-value">
+                            {{ incident.get_trigger_type_display }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="er-detail">
+
+                        <span class="er-detail-label">
+                            Status
+                        </span>
+
+                        <span class="er-detail-value">
+                            {{ incident.get_status_display }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="er-detail">
+
+                        <span class="er-detail-label">
+                            Created
+                        </span>
+
+                        <span class="er-detail-value">
+                            {{ incident.created_at|date:"d M Y, h:i A" }}
+                        </span>
+
+                    </div>
+
+
+                    {% if incident.acknowledged_at %}
+
+                        <div class="er-detail">
+
+                            <span class="er-detail-label">
+                                Acknowledged
+                            </span>
+
+                            <span class="er-detail-value">
+                                {{ incident.acknowledged_at|date:"d M Y, h:i A" }}
+                            </span>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if incident.resolved_at %}
+
+                        <div class="er-detail">
+
+                            <span class="er-detail-label">
+                                Resolved
+                            </span>
+
+                            <span class="er-detail-value">
+                                {{ incident.resolved_at|date:"d M Y, h:i A" }}
+                            </span>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- EMERGENCY ACTIONS -->
+
+                <div class="er-actions">
+
+                    {% if incident.status == "active" %}
+
+                        <form
+                            method="post"
+                            action="{% url 'acknowledge_emergency' incident.id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="er-btn er-btn-primary"
+                            >
+                                ACKNOWLEDGE EMERGENCY
+                            </button>
+
+                        </form>
+
+
+                    {% elif incident.status == "acknowledged" or incident.status == "escalated" %}
+
+                        <form
+                            method="post"
+                            action="{% url 'resolve_emergency' incident.id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="er-btn er-btn-success"
+                            >
+                                MARK AS RESOLVED
+                            </button>
+
+                        </form>
+
+
+                    {% elif incident.status == "resolved" %}
+
+                        <div class="er-resolved-message">
+                            ✓ Emergency resolved successfully.
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            <!-- LOCATION -->
+
+            <section class="er-card er-location-card">
+
+                <div class="er-card-title">
+
+                    <h2>
+                        Emergency Location
+                    </h2>
+
+                </div>
+
+
+                {% if incident.latitude and incident.longitude %}
+
+                    <div class="er-location">
+
+                        <div class="er-location-icon">
+                            ●
+                        </div>
+
+                        <h3>
+                            Location captured
+                        </h3>
+
+                        <p class="er-coordinates">
+
+                            Latitude:
+                            {{ incident.latitude }}
+
+                            <br>
+
+                            Longitude:
+                            {{ incident.longitude }}
+
+                        </p>
+
+
+                        <a
+                            href="https://www.google.com/maps?q={{ incident.latitude }},{{ incident.longitude }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="er-map-link"
+                        >
+                            OPEN LOCATION IN MAPS
+                        </a>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="er-location">
+
+                        <div class="er-location-icon">
+                            ?
+                        </div>
+
+                        <p class="er-no-location">
+                            GPS location was not available for this incident.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+
+                {% if incident.message %}
+
+                    <div class="er-message">
+
+                        <span class="er-message-label">
+                            Emergency Message
+                        </span>
+
+                        <p>
+                            {{ incident.message }}
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+        </div>
+
+
+        <a
+            href="{% url 'dashboard' %}"
+            class="er-back"
+        >
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}

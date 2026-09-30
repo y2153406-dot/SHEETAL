@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+
+{% block title %}
+Parent Dashboard | Guardian SHIELD
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .parent-dashboard {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 40px 20px 60px;
+    }
+
+    .parent-header {
+        background: linear-gradient(135deg, #111827, #1f2937);
+        color: #ffffff;
+        border-radius: 24px;
+        padding: 30px;
+        margin-bottom: 25px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .secure-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        margin-bottom: 15px;
+    }
+
+    .parent-header h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+    }
+
+    .parent-header p {
+        margin: 0;
+        color: #d1d5db;
+        line-height: 1.6;
+    }
+
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 22px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 22px;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        color: #111827;
+        font-size: 22px;
+    }
+
+    .card-header p {
+        margin: 5px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .incident-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .incident-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 20px;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        background: #f9fafb;
+    }
+
+    .incident-info {
+        min-width: 0;
+    }
+
+    .incident-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 7px;
+    }
+
+    .incident-title strong {
+        color: #111827;
+        font-size: 17px;
+    }
+
+    .incident-meta {
+        color: #6b7280;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .status-active {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .status-resolved {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-acknowledged {
+        background: #fef3c7;
+        color: #b45309;
+    }
+
+    .status-default {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .incident-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        border-radius: 10px;
+        padding: 11px 15px;
+        font-size: 13px;
+        font-weight: 800;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .action-button:hover {
+        transform: translateY(-1px);
+        opacity: 0.92;
+    }
+
+    .live-button {
+        background: #dc2626;
+        color: #ffffff;
+    }
+
+    .details-button {
+        background: #111827;
+        color: #ffffff;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 55px 20px;
+        color: #6b7280;
+    }
+
+    .empty-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 15px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #dcfce7;
+        color: #16a34a;
+        font-size: 25px;
+        font-weight: 900;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 7px;
+        color: #111827;
+        font-size: 20px;
+    }
+
+    .empty-state p {
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .error-card {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #b91c1c;
+        border-radius: 16px;
+        padding: 20px;
+        font-weight: 700;
+    }
+
+    .security-note {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 12px;
+        background: #f3f4f6;
+        color: #6b7280;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 700px) {
+        .parent-dashboard {
+            padding: 25px 15px 40px;
+        }
+
+        .parent-header {
+            padding: 23px;
+        }
+
+        .parent-header h1 {
+            font-size: 26px;
+        }
+
+        .dashboard-card {
+            padding: 20px;
+        }
+
+        .incident-item {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .incident-actions {
+            width: 100%;
+        }
+
+        .action-button {
+            flex: 1;
+        }
+    }
+</style>
+
+
+<div class="parent-dashboard">
+
+    {% if error %}
+
+        <div class="error-card">
+            ⚠️ {{ error }}
+        </div>
+
+    {% else %}
+
+        <!-- HEADER -->
+
+        <section class="parent-header">
+
+            <div class="secure-badge">
+                🔒 SECURE PARENT PORTAL
+            </div>
+
+            <h1>
+                Parent Dashboard
+            </h1>
+
+            <p>
+                Monitor emergency incidents and access live location
+                tracking for
+                {{ parent_user.first_name|default:parent_user.username }}.
+            </p>
+
+        </section>
+
+
+        <!-- INCIDENTS -->
+
+        <section class="dashboard-card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>
+                        Emergency Incidents
+                    </h2>
+
+                    <p>
+                        Select an incident to view its emergency details
+                        or live location.
+                    </p>
+                </div>
+
+            </div>
+
+
+            {% if incidents %}
+
+                <div class="incident-list">
+
+                    {% for incident in incidents %}
+
+                        <div class="incident-item">
+
+                            <div class="incident-info">
+
+                                <div class="incident-title">
+
+                                    <strong>
+                                        Incident #{{ incident.id }}
+                                    </strong>
+
+
+                                    {% if incident.status == "active" %}
+
+                                        <span class="status-badge status-active">
+                                            LIVE
+                                        </span>
+
+                                    {% elif incident.status == "resolved" %}
+
+                                        <span class="status-badge status-resolved">
+                                            RESOLVED
+                                        </span>
+
+                                    {% elif incident.status == "acknowledged" %}
+
+                                        <span class="status-badge status-acknowledged">
+                                            ACKNOWLEDGED
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status-badge status-default">
+                                            {{ incident.get_status_display }}
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="incident-meta">
+
+                                    <strong>
+                                        {{ incident.get_trigger_type_display }}
+                                    </strong>
+
+                                    <br>
+
+                                    {{ incident.created_at|date:"d M Y, h:i A" }}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="incident-actions">
+
+                                <!--
+                                    incident_links contains the correct
+                                    signed parent URL for this incident.
+                                -->
+
+                                {% for link_id, link_url in incident_links.items %}
+
+                                    {% if link_id == incident.id %}
+
+                                        <!-- LIVE LOCATION -->
+
+                                        <a
+                                            href="{{ link_url }}"
+                                            class="action-button live-button"
+                                        >
+                                            📍 VIEW LIVE
+                                        </a>
+
+
+                                        <!-- INCIDENT DETAILS -->
+
+                                        <a
+                                            href="{{ link_url }}"
+                                            class="action-button details-button"
+                                        >
+                                            🚨 DETAILS
+                                        </a>
+
+                                    {% endif %}
+
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        ✓
+                    </div>
+
+                    <h3>
+                        No Emergency Incidents
+                    </h3>
+
+                    <p>
+                        There are currently no emergency incidents
+                        associated with this SHIELD account.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+
+            <div class="security-note">
+                🔐 This dashboard is protected by a secure temporary
+                access token. Do not share this dashboard link publicly.
+            </div>
+
+        </section>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
