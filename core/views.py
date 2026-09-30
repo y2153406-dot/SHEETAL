@@ -616,6 +616,9 @@ def get_live_location(request):
     location = LiveLocation.objects.filter(
         user=request.user
     ).first()
+    print("PARENT INCIDENT USER:", incident.user_id)
+    print("LIVE LOCATION USERS:", list(LiveLocation.objects.values_list("user_id", flat=True)))
+
 
     if location is None:
         return Response(
